@@ -157,106 +157,182 @@
   <!-- Render in article for reader view enabling -->
     <article>
     <!-- Indentation must be zero for, e.g., PREs to work correctly -->
-<h1 id="getting-started-with-comsol">Getting started with COMSOL</h1>
+<h1 id="comsol-manual-3---quantum-mechanics">COMSOL manual 3 - Quantum mechanics</h1>
 <h2 id="goals">Goals</h2>
-<p>Introducing elementary COMSOL functions with Helmholtz coils. - Building object: drawing coils and domain - Setting the simulation - Solve and analyze the data</p>
-<h2 id="remarks">Remarks</h2>
 <ul>
-<li>If you just want to play with COMSOL to get familiar, go to <code>File</code> → <code>Application Libraries</code> and check step-by-step documents.</li>
-<li>If you are a person who need to read a book from the beginning, open COMSOL Documentation program that installed with COMSOL.</li>
-<li>If you prefer a video guide, see <a href="https://www.youtube.com/watch?v=82L4eBYYGkU&amp;list=PLBk1I79rzfjlUrbINpMy-dBSb22l0jN5J">Youtube link</a> for kind tutorials provided by COMSOL.</li>
-<li>Something written in <code>this format</code> is the words that you can find on your COMSOL window.</li>
+<li>Solving time-independent Schrodinger equation for simple 1D and 2D system with a well and a harmonic potential.</li>
+<li>Solving time-dependent Schrodinger equation and observe tunneling phenomena.</li>
 </ul>
-<h2 id="introduction">Introduction</h2>
-<h3 id="helmholtz-coil">Helmholtz coil</h3>
-<p>Picture of a commercial Helmholtz coils (picture from Bartington instrument).</p>
+<h2 id="schrodinger-equation">Schrodinger equation</h2>
+<p>We are trying to solve the Schrodinger equation for some simple cases. Schrodinger equation for a single particle wave function,<span class="math inline">\(\psi(\mathbf{r}, t)\)</span> in a potential, <span class="math inline">\(V(\mathbf{r})\)</span> is given as follows. <span class="math display">\[
+i\hbar\frac{\partial}{\partial t}\psi(\mathbf{r}, t) =\hat{H}\psi(\mathbf{r}, t)= \left[-\frac{\hbar^2}{2m}\nabla^2 + V(\mathbf{r}) \right]\psi(\mathbf{r}, t)
+\]</span> In the quantum mechanics lecture, we understand this differential equation with steady state solutions or time-independent Schrodinger equation. We obtain the equation by using an ansatz that gives time independent probability distribution of the particle, <span class="math inline">\(\psi(\mathbf{r}, t) = \psi(\mathbf{r})e^{-iEt/\hbar}\)</span>, where <span class="math inline">\(E\)</span> is a constant called energy eigenvalue. Inserting to the Schrodinger equation, we get the following. <span class="math display">\[
+E\psi(\mathbf{r}) = \left[-\frac{\hbar^2}{2m}\nabla^2 + V(\mathbf{r}) \right]\psi(\mathbf{r})
+\]</span> Depends on the functional form of the potential, one can solve or can not solve the equation by hand. First, we are going to solve this equation with COMSOL for the case we can solve exactly by hand. Then, we extend the potential to some interesting cases. We work with several potentials as a practice.</p>
+<h3 id="time-independent-schrodinger-equation---well">Time-independent Schrodinger equation - well</h3>
+<p>For 1D- infinite well of width <span class="math inline">\(L\)</span>, we have following form of the potential. <span class="math display">\[
+V =     
+    \begin{cases}
+       \infty,&amp; \text{if } |x|&gt; L/2 \\
+        0,              &amp; \text{otherwise}
+    \end{cases}
+\]</span> The equation inside the well is simply the Helmholtz equation we solved before. <span class="math display">\[
+\frac{d^2}{dx^2}\psi(x) + \frac{2mE}{\hbar^2}\psi(x) = 0
+\]</span> The eigenvalues of this system is <span class="math display">\[
+E_n = \frac{\hbar^2 k_n^2}{2m}= \frac{\hbar^2 \pi^2 n^2}{2mL^2}, \quad n = 1,2,3, ...
+\]</span> with corresponding eigenfunctions. <span class="math display">\[
+\psi_n (x)= 
+\begin{cases}
+   \sqrt{\frac{2}{L}}\cos(k_n x), &amp; n = 1,3,5,... \\
+   \sqrt{\frac{2}{L}}\sin(k_n x), &amp; n = 2,4,6,...
+\end{cases}
+\]</span> One of the key point here is that the energy eigenvalue has quadratic dependence on the wave vector, <span class="math inline">\(k_n\)</span> as for the classical free-space energy (<span class="math inline">\(E = p^2/2m=(\hbar k)^2/2m\)</span>). We can imagine is that by increasing the system size, <span class="math inline">\(L\)</span> to infinity than the eigenvalue becomes continuum (spacing between the eigenvalue vanishes). Now, we bravely call an eigenstate that has (almost) vanishing energy as a “unbound” state.</p>
+<p>One can recall the spectrum of the hydrogen. The eigenenergy scales as <span class="math inline">\(-1/n^2\)</span> and the spacing between the nearby energy level vanishes as <span class="math inline">\(n\)</span> or the energy grows.</p>
+<h3 id="solving-eigenvalue-problem-with-comsol">Solving eigenvalue problem with COMSOL</h3>
+<p>To solve the eigelvalue problem in COMSOL, we use <code>Coefficient form PDE</code> and <code>Eigenvalue</code> study.</p>
+<p>We set the Schrodinger equation in the nodes shown in the following figure.</p>
 <figure>
-<img src="imgs/a1230127dc26344dcbe2cb006402f481.png" alt="a1230127dc26344dcbe2cb006402f481.png" /><figcaption aria-hidden="true">a1230127dc26344dcbe2cb006402f481.png</figcaption>
+<img src="imgs/50c8021023e6edefb41bea2d474a2fa8.png" alt="Setting time-independent Schrodinger equation" /><figcaption aria-hidden="true">Setting time-independent Schrodinger equation</figcaption>
 </figure>
-<p>In many laboratories, 3-pairs of Helmholtz coils are often used for canceling the Earth’s magnetic field. In physics laboratory, many experiments (such as atomic clocks or quantum computers) are magnetic field sensitive. It is also widely used in industries such as for calibrating the compass of the smartphone. COMSOL use Amphere’s law with the vector potential to calculate the magnetic field. <span class="math display">\[
-\nabla \times \left( \mu^{-1} \nabla \times \boldsymbol{A} \right) = \boldsymbol{J}_{e}
-\]</span> <span class="math inline">\(\boldsymbol{A}\)</span> is the vector potential, <span class="math inline">\(\boldsymbol{J}_e\)</span> is the current density we apply, and <span class="math inline">\(\mu\)</span> is the permeability of the material. Magnetic field is <span class="math inline">\(\boldsymbol{B} = \nabla\times\boldsymbol{A}\)</span>. We already learn how to calculate the axial magnetic field of a circular coil. We use Bio-Savart’s law to calculate the field, <span class="math display">\[
-    d\boldsymbol{B} = \frac{\mu_0 I d\boldsymbol{l}\times\boldsymbol{r}}{4\pi r^3}
-\]</span> The axial field, <span class="math inline">\(B_z\)</span> can be calculated using symmetry of the coil. <span class="math display">\[
-B_z = \frac{\mu I}{2}\frac{R^2}{(R^2+z^2)^{3/2}}
-\]</span> We can calculate the field from a pair of Helmholtz coil with some displacement in z direction. When the distance between the coils are the same as its radius, <span class="math inline">\(a\)</span>. The field at the center is <span class="math display">\[
-B_z = \left(\frac{4}{5}\right)^{3/2} \frac{\mu_0NI}{a}
-\]</span></p>
-<p>Notice that this formula gives the field along the axis only and assumes infinitely thin wire. In addition, this formula is provided by an abstract or approximated situation. Using COMSOL we can calculate a bit realistic situation.</p>
-<h3 id="workflow">Workflow</h3>
-<p>(from a tutorial video) 1. Set up model environment 2. Create geometric object 3. Specify material properties 4. Define physics boundary conditions 5. Create the mesh 6. Run simulation 7. Post process the simulation</p>
-<h2 id="simulating-helmholtz-coil">Simulating Helmholtz coil</h2>
-<h3 id="set-up-model-environment">Set up model environment</h3>
-<p>Create <code>new file</code>. Click <code>Model wizard</code>. Select <code>Geometry: 2D axisymmetric</code>. <code>AC/DC</code> → <code>Electromagnetic fields</code> →<code>Magnetic fields (mf)</code>. Since the system under our interest has cylindrical symmetry, we choose 2D axisymmetric rather than 3D. Using symmetry is useful in many cases. Press study. General studies → stationary. We see the following interface where we work mostly.</p>
-<p><img src="imgs/f93d2ce1e8e5c9b39fcbb6002ffc701e.png" alt="f93d2ce1e8e5c9b39fcbb6002ffc701e.png" /> We see <code>Model Builder</code> pane and <code>Settings</code> pane and the other windows. <code>Model Builder</code> contains how we define the problem. The drop-down menus (<code>Global Definition</code>, <code>Compnent</code>, <code>Geometry</code>, .. ) are called node. Our simulation is consists of those nodes. <code>Settings</code> pane shows the properties of the selected node. If you right click on each node, you can find most of the actions you need to do. You can check and set values for the nodes in this pane. On the top, we have ribbon menu like MS Office, gives easy access to the nodes and its action on it.</p>
-<h3 id="create-geometric-object">Create geometric object</h3>
-<p>Let’s draw a pair of coil in <code>Geometry</code> node. r= 0 is the symmetry axis, we only draw two circles. Use <code>Geometry</code> ribbon on top of the menu or just right click <code>Geometry 1</code> in the <code>Model Builder</code>. We also need a rectangle as the domain of the magnetic field. You can draw more interactively with <code>Sketch</code> ribbon or type numbers in <code>Settings</code> pane.</p>
+<p>The names on the coefficients is for general partial differential equations. You can find more information about the meaning of those names by just googling heat equation, diffusion equation and so on. We only set <code>c</code>=1 and <code>d_e</code> = 1 in this case since we only focus on the qualitative feature of the problem.</p>
+<p>After solving the eigenvalue problem, we plot the eigenvalues with <code>Point graph</code>.</p>
 <figure>
-<img src="imgs/6bc3519630f214b85f52673d06426732.png" alt="6bc3519630f214b85f52673d06426732.png" /><figcaption aria-hidden="true">6bc3519630f214b85f52673d06426732.png</figcaption>
+<img src="imgs/0dad2146e266eed203ebf4f077f81729.png" alt="Eigenvalues" /><figcaption aria-hidden="true">Eigenvalues</figcaption>
 </figure>
-<h3 id="specify-material-properties">Specify material properties</h3>
-<p>Now we define how those things are made of using <code>Materials</code>. Material defines a physical properties of the object. Right click on <code>Materials</code> and click <code>Add Material from library</code> and we see <code>Add Material</code> pane. Since we are going to simulate copper ring hanging in the air, we add air and copper. We search the material called <code>Air</code> and double click to add it to the simulation. Add <code>Copper</code> too. We designate which <code>Geometry</code> is made of selected material. We assign copper to two circles and air to the rectangle using <code>Geometric entity selection</code> menu in <code>Settings</code> pane.</p>
+<p>We see quadratic scaling of the eigenvalues (<span class="math inline">\(\propto n^2 \propto k_n^2\)</span>) .</p>
+<h3 id="bound-state-unbound-state">Bound state, unbound state</h3>
+<p>We can glance some difference between the bound state and the (quasi-) unbound state. We can draw a potential of the following form by setting two <code>Coefficient form PDE</code> setting with different value of <span class="math inline">\(a\)</span>, the absorption coefficient.<br />
+<span class="math display">\[
+a =     
+    \begin{cases}
+       \infty,&amp; \text{if } |x|&gt; 5\text{ m} \\
+       500, &amp; \text{if} |x|&gt; 0.5\text{ m} \\
+        0,              &amp; \text{otherwise}
+    \end{cases}
+\]</span> The potential would looks like this.</p>
 <figure>
-<img src="imgs/32e91940e9b650fd8a901167fb80bd33.png" alt="32e91940e9b650fd8a901167fb80bd33.png" /><figcaption aria-hidden="true">32e91940e9b650fd8a901167fb80bd33.png</figcaption>
+<img src="imgs/608700fa060a6384fd9586081009683d.png" alt="Shape of the potential" /><figcaption aria-hidden="true">Shape of the potential</figcaption>
 </figure>
-<h3 id="define-physics-boundary-conditions">Define physics boundary conditions</h3>
-<p>Now, we move on to the <code>Magnetic Fields (mf)</code> in the <code>Model Builder</code>. We are going to define the current flowing through the ring. Right click on the node and select <code>External Current Density</code>. select two circles and give 1 <span class="math inline">\(A/m^2\)</span> in <span class="math inline">\(\phi\)</span> direction.</p>
+<p>The spectrum of this system looks as follows. We see two groups of eigenvalues. The scaling is suddenly changed after eigenvalue reaches 500 when the particle is now free to move above the central well.</p>
 <figure>
-<img src="imgs/e68316e80a3e884de10122026889080a.png" alt="e68316e80a3e884de10122026889080a.png" /><figcaption aria-hidden="true">e68316e80a3e884de10122026889080a.png</figcaption>
+<img src="imgs/quadraticEigenvaluesboudstate.png" alt="Spectrum of a narrow well in a big well" /><figcaption aria-hidden="true">Spectrum of a narrow well in a big well</figcaption>
 </figure>
-<h3 id="create-the-mesh">Create the mesh</h3>
-<p>Next, we set <code>Mesh</code> to solve the magnetic field. It is not possible to simulate the continuous domain, we slice the space into some small steps. There are rigorous mathematics behind this approximation, you can learn about this process in the future if you want. We select <code>Extra fine</code> element size and click <code>Build All</code> on top of the <code>Settings</code> pane.</p>
+<p>If we zoom-in, we observe that the last boundstate is the solution number 9.</p>
 <figure>
-<img src="imgs/f28c685972f004ec8da18b508c47033f.png" alt="f28c685972f004ec8da18b508c47033f.png" /><figcaption aria-hidden="true">f28c685972f004ec8da18b508c47033f.png</figcaption>
+<img src="imgs/quadraticEigenvalues%20boud%20state%20zoomed.png" alt="Zoom-in" /><figcaption aria-hidden="true">Zoom-in</figcaption>
 </figure>
-<h3 id="run-simulation">Run simulation</h3>
-<p>The set up is finished and let’s solve the equation. Go to <code>Study 1</code> node and click <code>Compute</code> in the <code>Settings</code>. You can see something is going on and get a nice plot on the <code>Graphics</code> window. COMSOL automatically plot something people might interest most, the magnitude of the magnetic field (or <code>Magnetic flux density norm</code>).</p>
+<p>Let’s take a look at the shape of the wavefunction. First three lowest eigenfunctions (blue-green-red) are looks like this.</p>
 <figure>
-<img src="imgs/85dbb0d5adb5beef45b7ce6288127503.png" alt="85dbb0d5adb5beef45b7ce6288127503.png" /><figcaption aria-hidden="true">85dbb0d5adb5beef45b7ce6288127503.png</figcaption>
+<img src="imgs/boundstatewavefunction.png" alt="First three lowest bound states" /><figcaption aria-hidden="true">First three lowest bound states</figcaption>
 </figure>
-<p>If you click <code>Magnetic Flux Density Norm, Revolved Geometry (mf)</code>, than you see what COMSOL actually solve. Since we selected axisymmetric 2D, we see cylindrically symmetric ring.</p>
+<p>We see that the wavefunction is localized in the well and resembles the infinite well excepts the boundary that decays exponentially. As the energy increases the number of node also increases.</p>
+<p>What about in the vicinity of the threshold (500)? The eigenfunction of 9, 10, 11 (blue, red, green) is shown here.</p>
 <figure>
-<img src="imgs/9e6ccf63c78633c1f18fa0e718cbf2c2.png" alt="9e6ccf63c78633c1f18fa0e718cbf2c2.png" /><figcaption aria-hidden="true">9e6ccf63c78633c1f18fa0e718cbf2c2.png</figcaption>
+<img src="imgs/unboundstatewavefunction.png" alt="Wavefunctions near the threshold" /><figcaption aria-hidden="true">Wavefunctions near the threshold</figcaption>
 </figure>
-<h3 id="post-process-the-simulation">Post process the simulation</h3>
-<p>How to present and analyze data is as important as solving the problem. Let’s say we are interested in the direction of the magnetic field also. We right click on the <code>Magnetic Flux Denisrty Norm (mf)</code> node and add <code>Arrow Surface</code>. Click <code>Plot</code> than you get red arrows that shows the direction and the magnitude. You can play with adjusting the number of grid points and colors and scaling in <code>Settings</code> pane.</p>
+<p>As we see, only # 9 is localized at the central well. 9 and 10 has very small energy difference but the shape of the wavefunction is quite different.</p>
+<h3 id="homework-1">Homework 1</h3>
+<p>Let us suppose that we weaken the well depth more and more. Is there any way to eliminate the bound state? If you think you find a bound state, than extend the domain size from 5 to say 100. Can you see the difference? There is no way to get rid of this bound state no matter how low the potential is. There is a theorem claim that there is at least one bound state in 1D quantum system. This theorem can be proved by yourself.</p>
+<h3 id="double-well-and-the-degeneracy">Double well and the degeneracy</h3>
+<p>We create double well as follows.</p>
 <figure>
-<img src="imgs/86c6b0fcf0f8154b5066f22ee28a05c3.png" alt="86c6b0fcf0f8154b5066f22ee28a05c3.png" /><figcaption aria-hidden="true">86c6b0fcf0f8154b5066f22ee28a05c3.png</figcaption>
+<img src="imgs/00cc4d4ae7aa89d37990be79b80d8402.png" alt="Double well potential" /><figcaption aria-hidden="true">Double well potential</figcaption>
 </figure>
-<p>The beauty of Helmholtz coil is the homogeneity of the field at the center with its simple geometry. We would like to check the uniformity using 1D cut plot along the axis. Right click on <code>Results</code> node and add <code>1D Plot Group</code>. Add <code>Line Graph</code> on <code>1D Plot Group</code>. Using this node, we can observe magnetic field strength along the symmetry axis. We set the selection in <code>Settings</code> pane to the axis, and check the data we want to plot <code>y-Axis Data</code> is the norm of the magnetic field (<code>mf.normB</code>). You can plot whatever you want by typing different <code>Expression</code> and you can find another expressions by expanding green and red arrow icon at the right corner.</p>
+<p>The spectrum looks a bit different. There are paired energy values.</p>
 <figure>
-<img src="imgs/86e17e53a78baa45ada6612a3163ace1.png" alt="86e17e53a78baa45ada6612a3163ace1.png" /><figcaption aria-hidden="true">86e17e53a78baa45ada6612a3163ace1.png</figcaption>
+<img src="imgs/doublewelleigenvalue.png" alt="Double well eigenvalue" /><figcaption aria-hidden="true">Double well eigenvalue</figcaption>
 </figure>
-<p>After we set, we click <code>Plot</code>, than we get the field value along the axis. You can compare this value with your analytic calculations you learn in General Physics course. Since we did not precisely set the geometry to Helmholtz condition, the field is not that homogeneous.</p>
+<p>First two lowest eigenfunctions looks like this.</p>
 <figure>
-<img src="imgs/6706eb92bbb7a220ad25f81b1b663437.png" alt="6706eb92bbb7a220ad25f81b1b663437.png" /><figcaption aria-hidden="true">6706eb92bbb7a220ad25f81b1b663437.png</figcaption>
+<img src="imgs/doublewellfirsttwoeigenfunctions.bmp" alt="Double well’s first two eigenfunctions" /><figcaption aria-hidden="true">Double well’s first two eigenfunctions</figcaption>
 </figure>
-<h3 id="getting-more-details">Getting more details</h3>
-<p>To be more flexible in parameter tuning, we use <code>Parameters 1</code> in <code>Global Definitions</code> node. We would like to tune the radius of the ring, <span class="math inline">\(r_1\)</span> and the distance between two rings, <span class="math inline">\(d_1\)</span>. We can put <span class="math inline">\(r_1\)</span> and <span class="math inline">\(d_1\)</span> to different nodes to parametrize the simulation (the dimension should be the length in this case).</p>
+<h3 id="homework-2">Homework 2</h3>
+<p>Do eigenvalues start to degenerate? But we build a very symmetric potential but there still is some broken degeneracy. Can we make absolute degeneracy? Actually there is also a theorem saying there can not be a degenerate state in 1D quantum system. Try to prove it!. You can find the proof on many textbooks.</p>
+<h2 id="d-simple-harmonic-oscillator-sho">1D Simple harmonic oscillator (SHO)</h2>
+<p>Now we consider a simple harmonic oscillator of angular frequency, <span class="math inline">\(\omega\)</span>. The energy eigenvalue is <span class="math display">\[
+E_{n} = \hbar\omega(n+\frac{1}{2}), \quad n=0, 1, 2, ...
+\]</span> SHO can be realize by inserting <code>1e4 [1/m^4]* x^2</code> in <span class="math inline">\(a\)</span> We see that the eigenvalue is linearly scales with <span class="math inline">\(n\)</span>.</p>
 <figure>
-<img src="imgs/7fb3dafacfcd1f3399e82e76d2cab3ff.png" alt="7fb3dafacfcd1f3399e82e76d2cab3ff.png" /><figcaption aria-hidden="true">7fb3dafacfcd1f3399e82e76d2cab3ff.png</figcaption>
+<img src="imgs/SHOeigenvalue.png" alt="SHO eigenvalue" /><figcaption aria-hidden="true">SHO eigenvalue</figcaption>
 </figure>
-<p>We put those to the location of the rings.</p>
+<p>First three eigenstates are Hermite-gaussian functions.</p>
 <figure>
-<img src="imgs/7ad6ecba820c92ad50290f1ae513af96.png" alt="7ad6ecba820c92ad50290f1ae513af96.png" /><figcaption aria-hidden="true">7ad6ecba820c92ad50290f1ae513af96.png</figcaption>
+<img src="imgs/SHOwavefunction.png" alt="SHO wavefunction" /><figcaption aria-hidden="true">SHO wavefunction</figcaption>
 </figure>
-<p>Update the geometry (<code>Build All Objects</code>), generate mesh again since you changed the geometry and compute the simulation again. You can observe more homogeneous field at the center.</p>
+<p>Notice that one should use strong enough spring constant (so I put <code>1e4</code>) to localize the wavefunction. If this is not strong enough, the boundary condition (infinite well) is more dominant than the harmonic potential, resulting in more like a previous case.</p>
+<h2 id="d-sho">2D SHO</h2>
+<p>We can extend the system to 2D by just starting a new simulation with 2D domain setting. <span class="math display">\[
+E_{n_x, n_y} = \hbar\omega(n_x+n_y+1)
+\]</span> We give a circle of radius 1m and gives strong enough potential as before. One can observe the exact degeneracy in this case.</p>
 <figure>
-<img src="imgs/9ee4474285489460f0cb2de7cce8bbdb.png" alt="9ee4474285489460f0cb2de7cce8bbdb.png" /><figcaption aria-hidden="true">9ee4474285489460f0cb2de7cce8bbdb.png</figcaption>
+<img src="imgs/2DSHOeigenvalue.png" alt="2D SHO eigenvalue" /><figcaption aria-hidden="true">2D SHO eigenvalue</figcaption>
+</figure>
+<p>Here is first 3 wavefunctions. Last two are energetically degenerate (just rotated!).</p>
+<figure>
+<img src="imgs/2DSHOwavefunction1.png" alt="2DSHO wavefunction 1" /><figcaption aria-hidden="true">2DSHO wavefunction 1</figcaption>
 </figure>
 <figure>
-<img src="imgs/4b13d68e105b07e90039682e90abc75c.png" alt="4b13d68e105b07e90039682e90abc75c.png" /><figcaption aria-hidden="true">4b13d68e105b07e90039682e90abc75c.png</figcaption>
+<img src="imgs/2DSHOwavefunction2.png" alt="2DSHO wavefunction 2" /><figcaption aria-hidden="true">2DSHO wavefunction 2</figcaption>
 </figure>
-<p>We can play with the parameters, <span class="math inline">\(r_1\)</span> and <span class="math inline">\(d_1\)</span>. We can test how the homogeneity changes by those parameters.</p>
-<p>One can observe that the magnetic field is localized in the box we define (especially on the right edge of the box). This is because of the default boundary condition (magnetic insulation) set by the COMSOL. We basically simulate Helmholtz coil in a metal box made of high permeability (material that blocks the magnetic flux). We can extend the size of the box much larger than <span class="math inline">\(r_1\)</span> and <span class="math inline">\(d_1\)</span>, in order to minimize the effect of this artificial boundary. One can check whether the line graph converges or not by gradually extending the domain size.</p>
 <figure>
-<img src="imgs/3c6c26777756a87e967ca11068afa168.png" alt="3c6c26777756a87e967ca11068afa168.png" /><figcaption aria-hidden="true">3c6c26777756a87e967ca11068afa168.png</figcaption>
+<img src="imgs/2DSHOwavefunction3.png" alt="2DSHO wavefunction 3" /><figcaption aria-hidden="true">2DSHO wavefunction 3</figcaption>
 </figure>
-<h2 id="homework">Homework</h2>
+<p>This is the last one (#20).</p>
+<figure>
+<img src="imgs/2DSHOwavefunction20.png" alt="2DSHO wavefunction 20" /><figcaption aria-hidden="true">2DSHO wavefunction 20</figcaption>
+</figure>
+<h2 id="time-dependent-schrodinger-equation">Time-dependent Schrodinger equation</h2>
+<p>Steady state gives us many useful information, however, it does not tell us how a wave packet moves after launched to some velocity. We solve time dependent Schrodinger equation with a Gaussian shaped wave packet.</p>
+<p>We can solve the dynamics with choosing <code>time dependnent</code> study and modify the coefficients to have Schrodinger equation. Now the variable, <span class="math inline">\(u\)</span> is a complex number.</p>
+<p>We are going to use a wavefunction of the following shape. (Forget about the normalization for a moment) <span class="math inline">\(\psi (x) = \exp\left[ -\frac{x^2}{4\sigma^2} \right]\)</span></p>
+<p>First we try to find out how a Gaussian wavepacket without net momentum spreading in the well. At the end, it is reflected from the boundary of the well, (I impose Dirichelet Boundary) shattered into some uniform shape. Notice that it is easy for simulation to blow up since the spatial frequency becomes very high after the reflection.</p>
+<figure>
+<img src="imgs/schrodinger-gaussianspreading.gif" alt="Spreading Gaussian in a well" /><figcaption aria-hidden="true">Spreading Gaussian in a well</figcaption>
+</figure>
+<p>One can calculate how does wavepacket spread over time without any potential (infinite space, no boundary like the simulation). <span class="math display">\[
+\sigma(t) = \sigma(0) \sqrt{1+ \left(\frac{t}{\tau}\right)^2}, \quad \text{where } \tau = 2m\sigma^2/\hbar
+\]</span> Notice that the it takes more time to spread when the mass or the initial uncertainty (<span class="math inline">\(\sigma\)</span>) is larger.</p>
+<p>If there is a harmonic potential, we expect it not to spread anymore. Let us impose a harmonic potential.</p>
+<figure>
+<img src="imgs/schrodinger-gaussianinharmonic2.gif" alt="Spreading Gaussian packet in SHO" /><figcaption aria-hidden="true">Spreading Gaussian packet in SHO</figcaption>
+</figure>
+<p>The width of the packet oscillates over time because it not close to the eigenstate. Here we showed that when the width of the initial packet is smaller than the eigenstate value. Following animation is when the initial state is larger than the eigenstate value. We see that the packet is compressed in the beginning.</p>
+<figure>
+<img src="imgs/schrodinger-gaussianinharmonic.gif" alt="Compressing Gaussian packet in SHO" /><figcaption aria-hidden="true">Compressing Gaussian packet in SHO</figcaption>
+</figure>
+<p>If one get closer to the eigenvalue, it barely oscillates showing the meaning of the ‘steady state’.</p>
+<figure>
+<img src="imgs/schrodinger-gaussianinharmonic3.gif" alt="Steady Gaussian packet in SHO" /><figcaption aria-hidden="true">Steady Gaussian packet in SHO</figcaption>
+</figure>
+<p>Let us give a kick to the Gaussian packet. Giving a momentum kick can be done naively by just imposing a phase factor, <span class="math inline">\(e^{imvx}\)</span> to the wavefunction. Give <span class="math inline">\(0\)</span> for <span class="math inline">\(\partial u / \partial t\)</span> initial condition for now. Note that this is not exact way to launch the Gaussian packet in free space but considering this as an attempt. In a well, it spreads while moving, reflects at the boundary.</p>
+<figure>
+<img src="imgs/schrodinger-kickedgaussianinwell.gif" alt="Kicked packet in a well" /><figcaption aria-hidden="true">Kicked packet in a well</figcaption>
+</figure>
+<p>With the harmonic potential, it oscillates over time while maintaining its width.</p>
+<figure>
+<img src="imgs/schrodinger-kickedgaussianinharmonic.gif" alt="Kicked packet in a harnomic oscillator" /><figcaption aria-hidden="true">Kicked packet in a harnomic oscillator</figcaption>
+</figure>
+<h2 id="tunneling-dynamics">Tunneling dynamics</h2>
+<p>We are now able to launch a wavepacket and can build a finite potential well. As the last task, we try to simulate an interesting phenomena, the tunneling. In order to do simulate properly we need to learn how to set initial <span class="math inline">\(\partial u/\partial t\)</span>. The initial time derivative information is very important. There are many resources on this such as textbook or internet. Here is a nice <a href="https://www.reed.edu/physics/faculty/wheeler/documents/Quantum%20Mechanics/Miscellaneous%20Essays/Gaussian%20Wavepackets.pdf">lecture note from professor N. Wheeler</a>. Once you type a proper boundary condition, you will get following launched packet.</p>
+<figure>
+<img src="imgs/nobarrier.gif" alt="Launched Gaussian packet" /><figcaption aria-hidden="true">Launched Gaussian packet</figcaption>
+</figure>
+<p>Now we build a finite potential near 0. The potential I used here looks like this.</p>
+<figure>
+<img src="imgs/d780607a76c8ff2c67026c33fdd1c74c.png" alt="Potential barrier" /><figcaption aria-hidden="true">Potential barrier</figcaption>
+</figure>
+<p>We observe a tunneling through the barrier. The potential barrier is high enough (Potential is 50% higher than the kinetic energy). We observe that large part of the wavepacket is been transmitted. When the pulse arrives the barrier it shows strong peaking behavior due to the interference between input pulse and the reflected pulse.</p>
+<figure>
+<img src="imgs/tunneling.gif" alt="Tunneling" /><figcaption aria-hidden="true">Tunneling</figcaption>
+</figure>
+<p>When the potential is shallower than the kinetic energy (kinetic energy is twice the potential barrier in this case) , it shows a bit different intermediate transients but still there is small reflection.</p>
+<figure>
+<img src="imgs/classicalpenentration.gif" alt="KE higher than the potential" /><figcaption aria-hidden="true">KE higher than the potential</figcaption>
+</figure>
+<h3 id="homework-3">Homework 3</h3>
 <ol type="1">
-<li>Are we sure about this simulation? When we first try the simulation, we are not sure whether the simulation is right or not. In physics research field, people often call this kind of computer simulation as ‘experiment done in computer’. We need some process to test its reliability. One general method is comparing it with an analytic calculation. In this case we can compare the result with the formula from Bio-Savart’s law. Are they comparable? (Explain quantitatively)</li>
-<li>Recognizing the mesh. What is the effect size of the wire? How thin can wire be? What happen if the wire is too small? (Explain qualitatively)</li>
-<li>In the last part of the tutorial, we mentioned about high permeability material. How does the high permeability material block the field? Is there any real material like this? You may also learned about Faraday cage. How does it different from the Faraday cage? (Explain qualitatively)</li>
+<li>What happen if the potential has negative value? How does transient region changes? Does packet always transmitted through the attractive potential?</li>
+<li>In classical penetration regime, does transmission increase when the height of the potential decrease always? This questions are related to the resonance phenomena.</li>
 </ol>
   </article>
 </body>
